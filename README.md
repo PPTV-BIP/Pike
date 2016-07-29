@@ -1,5 +1,5 @@
 # pike
-pike is a SQL statment on Storm, like hive on hadoop. It translates SQL to Storm topology.
+pike is a SQL statement on Storm, like hive on hadoop. It translates SQL to Storm topology.
 
 #support
 If you need help using pike feel free to file an issue or contact me.
