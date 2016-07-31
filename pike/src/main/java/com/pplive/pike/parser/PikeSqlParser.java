@@ -3,7 +3,6 @@ package com.pplive.pike.parser;
 import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import net.sf.jsqlparser.JSQLParserException;
@@ -11,15 +10,17 @@ import net.sf.jsqlparser.expression.Expression;
 import net.sf.jsqlparser.parser.CCJSqlParserManager;
 import net.sf.jsqlparser.statement.Statement;
 import net.sf.jsqlparser.statement.StatementVisitor;
+import net.sf.jsqlparser.statement.Statements;
+import net.sf.jsqlparser.statement.alter.Alter;
+import net.sf.jsqlparser.statement.create.index.CreateIndex;
 import net.sf.jsqlparser.statement.create.table.CreateTable;
+import net.sf.jsqlparser.statement.create.view.CreateView;
 import net.sf.jsqlparser.statement.delete.Delete;
 import net.sf.jsqlparser.statement.drop.Drop;
 import net.sf.jsqlparser.statement.insert.Insert;
 import net.sf.jsqlparser.statement.replace.Replace;
 import net.sf.jsqlparser.statement.select.Select;
 import net.sf.jsqlparser.statement.select.SelectBody;
-import net.sf.jsqlparser.statement.select.SelectItem;
-import net.sf.jsqlparser.statement.select.WithItem;
 import net.sf.jsqlparser.statement.truncate.Truncate;
 import net.sf.jsqlparser.statement.update.Update;
 
@@ -89,7 +90,7 @@ public class PikeSqlParser implements StatementVisitor {
 	private Iterable<TransformField> _outputItems; // the OUTPUT(...) items
 
 	private Iterable<OutputTarget> _outputTargets;
-	
+
 	private Period _baseProcessPeriod;
 	Period getProcessPeriod() {
 		return this._baseProcessPeriod;
@@ -125,13 +126,7 @@ public class PikeSqlParser implements StatementVisitor {
 	
 	// visit methods of StatementVisitor
 	public void visit(Select select) {
-		@SuppressWarnings("unchecked") List<WithItem> list = select.getWithItemsList();
-		if (list != null) {
-			for(WithItem withItem : list){
-				analyzeWithItem(withItem);
-			}
-		}
-		
+
 		this._pikeOrStormOptions = parseSetOptions(select.getOptionItems(), this._parseErrors);
 		
 		// parse period 
@@ -193,24 +188,7 @@ public class PikeSqlParser implements StatementVisitor {
 		}
 		return parsedOptions;
 	}
-	
-	private void analyzeWithItem(WithItem withItem) {
-		assert withItem != null;
-		
-		@SuppressWarnings("unchecked") List<SelectItem> cols = withItem.getWithItemList();
-		WithColumnsParser withColumnParser = new WithColumnsParser();
-		withColumnParser.parseWithColumns(cols);
 
-		String tableName = withItem.getName();
-		ArrayList<CaseIgnoredString> columnNames = withColumnParser.getColumnNames();
-		SelectBody selectBody = withItem.getSelectBody();
-		SelectParser parser = new SelectParser(this, null, selectBody);
-		RelationalExprOperator operator = parser.parse();
-
-		addError(new UnsupportedOperationException("WITH is not implemented yet."));
-		// todo, create com.pplive.pike.metadata.Table according to tableName, columnNames, selectBody output schema
-	}
-	
 	public void visit(Delete delete) {
 		addError(new SemanticErrorException("DELETE is not supported in Pike, only support SELECT statement"));
 	}
@@ -234,10 +212,28 @@ public class PikeSqlParser implements StatementVisitor {
 	public void visit(Truncate truncate) {
 		addError(new SemanticErrorException("TRUNCATE is not supported in Pike, only support SELECT statement"));
 	}
-	
+
+	@Override
+	public void visit(CreateIndex createIndex) {
+		addError(new SemanticErrorException("CREATE INDEX is not supported in Pike, only support SELECT statement"));
+	}
+
 	public void visit(CreateTable createTable) {
 		addError(new SemanticErrorException("CREATE is not supported in Pike, only support SELECT statement"));
 	}
-	
-	
+
+	@Override
+	public void visit(CreateView createView) {
+		addError(new SemanticErrorException("CREATE VIEW is not supported in Pike, only support SELECT statement"));
+	}
+
+	@Override
+	public void visit(Alter alter) {
+		addError(new SemanticErrorException("ALTER is not supported in Pike, only support SELECT statement"));
+	}
+
+	@Override
+	public void visit(Statements statements) {
+		addError(new SemanticErrorException("Multi Statement not supported in Pike, only support SELECT statement"));
+	}
 }

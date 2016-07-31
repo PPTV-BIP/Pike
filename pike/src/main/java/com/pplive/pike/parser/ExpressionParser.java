@@ -27,18 +27,7 @@ import com.pplive.pike.function.builtin.Convert;
 import com.pplive.pike.function.builtin.IBuiltinFunctionParser;
 import com.pplive.pike.metadata.Column;
 
-import net.sf.jsqlparser.expression.AllComparisonExpression;
-import net.sf.jsqlparser.expression.AnyComparisonExpression;
-import net.sf.jsqlparser.expression.BinaryExpression;
-import net.sf.jsqlparser.expression.CaseExpression;
-import net.sf.jsqlparser.expression.Expression;
-import net.sf.jsqlparser.expression.ExpressionVisitor;
-import net.sf.jsqlparser.expression.Function;
-import net.sf.jsqlparser.expression.InverseExpression;
-import net.sf.jsqlparser.expression.JdbcParameter;
-import net.sf.jsqlparser.expression.NullValue;
-import net.sf.jsqlparser.expression.Parenthesis;
-import net.sf.jsqlparser.expression.WhenClause;
+import net.sf.jsqlparser.expression.*;
 import net.sf.jsqlparser.expression.operators.arithmetic.Addition;
 import net.sf.jsqlparser.expression.operators.arithmetic.BitwiseAnd;
 import net.sf.jsqlparser.expression.operators.arithmetic.BitwiseOr;
@@ -100,7 +89,7 @@ class ExpressionParser extends ConstantExpressionParser {
 		}
 	}
 	
-	public void visit(InverseExpression inverseExpression) {
+/*	public void visit(InverseExpression inverseExpression) {
 		inverseExpression.getExpression().accept(this);
 		AbstractExpression paramExpr = this._parsedExpr;
 		if (paramExpr == null){
@@ -116,7 +105,28 @@ class ExpressionParser extends ConstantExpressionParser {
 			this._parseErrors.add(e);
 			this._parsedExpr = null;
 		}
+	}*/
+
+	public void visit(SignedExpression signedExpression) {
+		signedExpression.getExpression().accept(this);
+		AbstractExpression paramExpr = this._parsedExpr;
+		if (paramExpr == null){
+			this._parsedExpr = null;
+			return;
+		}
+
+		if (signedExpression.getSign() == 45){
+			try{
+				UnaryOpExpression expr = new UnaryOpExpression(InverseOp.Op, InverseOp.class, paramExpr);
+				this._parsedExpr = expr;
+			}
+			catch(SemanticErrorException e){
+				this._parseErrors.add(e);
+				this._parsedExpr = null;
+			}
+		}
 	}
+
 	
 	public void visit(JdbcParameter jdbcParameter) {
 		addError(new SemanticErrorException("Dynamic parameter (?) in statement is not supported."));
@@ -325,15 +335,20 @@ class ExpressionParser extends ConstantExpressionParser {
 
         final List<AbstractExpression> inExprs = new ArrayList<AbstractExpression>();
 
-        inExpression.getItemsList().accept(new ItemsListVisitor() {
+        inExpression.getRightItemsList().accept(new ItemsListVisitor() {
             @Override
             public void visit(SubSelect subSelect) {
                 addError(new UnsupportedOperationException("IN ( <subquery> ) is not supported yet."));
             }
 
+			@Override
+			public void visit(MultiExpressionList multiExpressionList) {
+				addError(new UnsupportedOperationException("IN ( multi expression ) is not supported yet."));
+			}
+
             @Override
             public void visit(ExpressionList expressionList) {
-                for(Expression expr : (List<Expression>)expressionList.getExpressions()) {
+                for(Expression expr : expressionList.getExpressions()) {
                     ExpressionParser.this._parsedExpr = null;
                     expr.accept(ExpressionParser.this);
                     final AbstractExpression candidate = ExpressionParser.this._parsedExpr;
@@ -347,7 +362,7 @@ class ExpressionParser extends ConstantExpressionParser {
                     }
                 }
             }
-        });
+		});
 
         this._parsedExpr = new com.pplive.pike.expression.InExpression(leftExpr, inExprs);
 	}
@@ -394,7 +409,7 @@ class ExpressionParser extends ConstantExpressionParser {
 		assert table != null;
 		String tableName = "";
 		if (table.getSchemaName() != null) {
-			String msg = String.format("%s: table with schema name is not supported", tableColumn.getWholeColumnName());
+			String msg = String.format("%s: table with schema name is not supported", tableColumn.getFullyQualifiedName());
 			addError(new SemanticErrorException(msg));
 			this._parsedExpr = null;
 			return;
@@ -552,8 +567,9 @@ class ExpressionParser extends ConstantExpressionParser {
 		if (elseExpr == null) {
 			elseExpr = new NullValue();
 		}
-		@SuppressWarnings("unchecked") List<WhenClause> clauses = caseExpression.getWhenClauses();
-		
+
+		List<Expression> clauses = caseExpression.getWhenClauses();
+
 		WhenClause[] whenClauses = clauses.toArray(new WhenClause[0]);
 		assert whenClauses.length > 0;
 		IfExpr ifExpr = null;

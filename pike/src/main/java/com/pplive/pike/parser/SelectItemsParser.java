@@ -262,7 +262,7 @@ class SelectItemsParser implements SelectItemVisitor {
 	}
 	
 	public void visit(SelectExpressionItem selectExpressionItem) {
-		String alias = selectExpressionItem.getAlias();
+		String alias = selectExpressionItem.getAlias().getName();
 		Expression expr = selectExpressionItem.getExpression();
 		ExpressionParser parser = new ExpressionParser(this._sqlParser, this._schemaScope, expr);
 		AbstractExpression parsedExpr = null;

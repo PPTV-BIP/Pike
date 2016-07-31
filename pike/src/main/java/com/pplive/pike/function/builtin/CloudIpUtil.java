@@ -14,7 +14,7 @@ import com.pplive.pike.Configuration;
 import com.pplive.pike.base.AbstractUDF;
 import com.pplive.pike.util.CodeManager;
 import com.pplive.pike.util.Path;
-import com.pptv.cdn.iplib.api.IPLib;
+//import com.pptv.cdn.iplib.api.IPLib;
 
 /**
  * 用云播部门提供的jar与IP地址数据库解析IP，得到国家，区域，城市，ISP的名称与编号。
@@ -31,7 +31,7 @@ public class CloudIpUtil {
     /** 未知的IP或者非法的IP值时，返回的名称为未知. */
     private static final String UNKNOWN_NAME = "未知";
 
-    private static IPLib iplib;
+ //   private static IPLib iplib;
 
     private static CodeManager codeManager;
 
@@ -41,7 +41,7 @@ public class CloudIpUtil {
      * <li>IP地址库会每天更新一次。
      * </ol>
      */
-    static {
+ /*   static {
         try {
             Configuration conf = new Configuration();
             String codeLibraryDir =
@@ -73,7 +73,7 @@ public class CloudIpUtil {
             e.printStackTrace();
             throw new IllegalStateException("Error happen when load ip library: " + e);
         }
-    }
+    } */
 
     /**
      * 这个类提供IP所对应的名称与代码信息。 IPLib返回IP的地理信息，格式：国家/省份/城市/ISP
@@ -96,7 +96,8 @@ public class CloudIpUtil {
             int cityCode = UNKNOWN_CODE;
             int ISPCode = UNKNOWN_CODE;
             if (!StringUtils.isEmpty(ip)) {
-                String info = iplib.queryIP(ip);
+                //String info = iplib.queryIP(ip);
+                String info = null;
                 String[] fields = info.split("/");
 
                 if (fields.length >= 4) {
@@ -141,7 +142,8 @@ public class CloudIpUtil {
             String ISPName = UNKNOWN_NAME;
 
             if (!StringUtils.isEmpty(ip)) {
-                String info = iplib.queryIP(ip);
+                //String info = iplib.queryIP(ip);
+                String info = null;
                 String[] fields = info.split("/");
 
                 if (fields.length >= 4) {
@@ -173,7 +175,7 @@ public class CloudIpUtil {
         private static final long serialVersionUID = 1L;
         
         public static String evaluate(String ip) {
-            return iplib.queryIPRangeByIP(ip);
+            return null;//iplib.queryIPRangeByIP(ip);
         }
     }
 }

@@ -1,10 +1,7 @@
 package com.pplive.pike.parser;
 
 import java.util.ArrayList;
-import java.util.List;
-
 import com.pplive.pike.base.AbstractUdtf;
-import com.pplive.pike.base.Period;
 import com.pplive.pike.expression.FunctionExpression;
 import com.pplive.pike.metadata.Table;
 
@@ -53,17 +50,17 @@ class FromItemParser implements FromItemVisitor {
 		assert this._fromRootOp == null;
 		this._fromRootOp = globalScope.getTableOp(table.getName());
 		if (sqlTable.getAlias() != null) {
-			assert sqlTable.getAlias().isEmpty() == false;
-			RenameOp renameOp = new RenameOp(this._fromRootOp, sqlTable.getAlias());
+			assert sqlTable.getAlias().getName().isEmpty() == false;
+			RenameOp renameOp = new RenameOp(this._fromRootOp, sqlTable.getAlias().getName());
 			this._fromRootOp = renameOp;
 		}
 
-        List<LateralView> lateralViews = sqlTable.getLateralViews();
-        parseLateralViews(lateralViews);
+  //      List<LateralView> lateralViews = sqlTable.getLateralViews();
+  //      parseLateralViews(lateralViews);
 	}
 
     private static boolean not(boolean expr) { return !expr; }
-
+/*
     private void parseLateralViews(List<LateralView> lateralViews) {
         if (lateralViews == null){
             return;
@@ -91,7 +88,7 @@ class FromItemParser implements FromItemVisitor {
             }
         }
     }
-	
+	*/
 	public void visit(SubSelect subSelect) {
 		if (subSelect.getAlias() == null) {
 			addError(new SemanticErrorException("SUBQUERY in From (...) has no result alias"));
@@ -101,7 +98,7 @@ class FromItemParser implements FromItemVisitor {
 		SelectParser parser = new SelectParser(this._sqlParser, null, selectBody, true);
 		try{
 			RelationalExprOperator parsedOp = parser.parse();
-			String table = subSelect.getAlias();
+			String table = subSelect.getAlias().getName();
 			if (table == null) {
 				table = InternalTableName.genTableName("").value();
 			}
@@ -112,12 +109,22 @@ class FromItemParser implements FromItemVisitor {
 			for(Exception err : e.getParseErrors())
 				addError(err);
 		}
-        List<LateralView> lateralViews = subSelect.getLateralViews();
-        parseLateralViews(lateralViews);
+  //      List<LateralView> lateralViews = subSelect.getLateralViews();
+ //       parseLateralViews(lateralViews);
 	}
 	
 	public void visit(SubJoin subjoin) {
 		addError(new UnsupportedOperationException("join is not implemented yet"));
 		// todo
+	}
+
+	@Override
+	public void visit(LateralSubSelect lateralSubSelect) {
+		addError(new UnsupportedOperationException("LateralSubSelect is not implemented yet"));
+	}
+
+	@Override
+	public void visit(ValuesList valuesList) {
+		addError(new UnsupportedOperationException("ValuesList is not implemented yet"));
 	}
 }

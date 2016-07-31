@@ -6,46 +6,12 @@ import com.pplive.pike.expression.AbstractExpression;
 import com.pplive.pike.expression.ConstantExpression;
 
 
-import net.sf.jsqlparser.expression.AllComparisonExpression;
-import net.sf.jsqlparser.expression.AnyComparisonExpression;
-import net.sf.jsqlparser.expression.BooleanValue;
-import net.sf.jsqlparser.expression.CaseExpression;
-import net.sf.jsqlparser.expression.DateValue;
-import net.sf.jsqlparser.expression.DoubleValue;
-import net.sf.jsqlparser.expression.Expression;
-import net.sf.jsqlparser.expression.ExpressionVisitor;
-import net.sf.jsqlparser.expression.Function;
-import net.sf.jsqlparser.expression.InverseExpression;
-import net.sf.jsqlparser.expression.JdbcParameter;
-import net.sf.jsqlparser.expression.LongValue;
-import net.sf.jsqlparser.expression.NullValue;
-import net.sf.jsqlparser.expression.Parenthesis;
-import net.sf.jsqlparser.expression.StringValue;
-import net.sf.jsqlparser.expression.TimeValue;
-import net.sf.jsqlparser.expression.TimestampValue;
-import net.sf.jsqlparser.expression.WhenClause;
-import net.sf.jsqlparser.expression.operators.arithmetic.Addition;
-import net.sf.jsqlparser.expression.operators.arithmetic.BitwiseAnd;
-import net.sf.jsqlparser.expression.operators.arithmetic.BitwiseOr;
-import net.sf.jsqlparser.expression.operators.arithmetic.BitwiseXor;
-import net.sf.jsqlparser.expression.operators.arithmetic.Concat;
-import net.sf.jsqlparser.expression.operators.arithmetic.Division;
-import net.sf.jsqlparser.expression.operators.arithmetic.Multiplication;
-import net.sf.jsqlparser.expression.operators.arithmetic.Subtraction;
+import net.sf.jsqlparser.expression.*;
+//import net.sf.jsqlparser.expression.BooleanValue;
+import net.sf.jsqlparser.expression.operators.arithmetic.*;
 import net.sf.jsqlparser.expression.operators.conditional.AndExpression;
 import net.sf.jsqlparser.expression.operators.conditional.OrExpression;
-import net.sf.jsqlparser.expression.operators.relational.Between;
-import net.sf.jsqlparser.expression.operators.relational.EqualsTo;
-import net.sf.jsqlparser.expression.operators.relational.ExistsExpression;
-import net.sf.jsqlparser.expression.operators.relational.GreaterThan;
-import net.sf.jsqlparser.expression.operators.relational.GreaterThanEquals;
-import net.sf.jsqlparser.expression.operators.relational.InExpression;
-import net.sf.jsqlparser.expression.operators.relational.IsNullExpression;
-import net.sf.jsqlparser.expression.operators.relational.LikeExpression;
-import net.sf.jsqlparser.expression.operators.relational.Matches;
-import net.sf.jsqlparser.expression.operators.relational.MinorThan;
-import net.sf.jsqlparser.expression.operators.relational.MinorThanEquals;
-import net.sf.jsqlparser.expression.operators.relational.NotEqualsTo;
+import net.sf.jsqlparser.expression.operators.relational.*;
 import net.sf.jsqlparser.statement.select.SubSelect;
 
 class ConstantExpressionParser implements ExpressionVisitor {
@@ -81,15 +47,26 @@ class ConstantExpressionParser implements ExpressionVisitor {
 		addError(new IllegalStateException("should never happen"));
 		this._parsedExpr = null;
 	}
-	
-	public void visit(InverseExpression inverseExpression) {
+
+	@Override
+	public void visit(SignedExpression signedExpression) {
 		addError(new IllegalStateException("should never happen"));
 		this._parsedExpr = null;
 	}
 	
+/*	public void visit(InverseExpression inverseExpression) {
+		addError(new IllegalStateException("should never happen"));
+		this._parsedExpr = null;
+	}*/
+	
 	public void visit(JdbcParameter jdbcParameter) {
 		addError(new IllegalStateException("should never happen"));
 		this._parsedExpr = null;
+	}
+
+	@Override
+	public void visit(JdbcNamedParameter jdbcNamedParameter) {
+
 	}
 
 	public void visit(BooleanValue booleanValue) {
@@ -109,7 +86,7 @@ class ConstantExpressionParser implements ExpressionVisitor {
 		else
 			this._parsedExpr = new ConstantExpression(Long.valueOf(val));
 	}
-	
+
 	public void visit(DateValue dateValue) {
 		this._parsedExpr = new ConstantExpression(dateValue.getValue());
 	}
@@ -268,6 +245,48 @@ class ConstantExpressionParser implements ExpressionVisitor {
 	}
 	
 	public void visit(BitwiseXor bitwiseXor) {
+		addError(new IllegalStateException("should never happen"));
+		this._parsedExpr = null;
+	}
+
+	@Override
+	public void visit(CastExpression castExpression) {
+		addError(new IllegalStateException("should never happen"));
+		this._parsedExpr = null;
+	}
+
+	@Override
+	public void visit(Modulo modulo) {
+		addError(new IllegalStateException("should never happen"));
+		this._parsedExpr = null;
+	}
+
+	@Override
+	public void visit(AnalyticExpression analyticExpression) {
+		addError(new IllegalStateException("should never happen"));
+		this._parsedExpr = null;
+	}
+
+	@Override
+	public void visit(ExtractExpression extractExpression) {
+		addError(new IllegalStateException("should never happen"));
+		this._parsedExpr = null;
+	}
+
+	@Override
+	public void visit(IntervalExpression intervalExpression) {
+		addError(new IllegalStateException("should never happen"));
+		this._parsedExpr = null;
+	}
+
+	@Override
+	public void visit(OracleHierarchicalExpression oracleHierarchicalExpression) {
+		addError(new IllegalStateException("should never happen"));
+		this._parsedExpr = null;
+	}
+
+	@Override
+	public void visit(RegExpMatchOperator regExpMatchOperator) {
 		addError(new IllegalStateException("should never happen"));
 		this._parsedExpr = null;
 	}

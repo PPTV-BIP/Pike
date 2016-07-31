@@ -288,8 +288,31 @@ class SelectParser implements SelectVisitor {
 		
 		this._oneSelectRootOp = plainSelectRootOp;
 	}
-	
-	public void visit(Union union) {
+
+	@Override
+	public void visit(SetOperationList setOperationList) {
+		addError(new UnsupportedOperationException("SetOperationList  is not implemented yet."));
+	}
+
+	@Override
+	public void visit(WithItem withItem) {
+		assert withItem != null;
+
+		@SuppressWarnings("unchecked") List<SelectItem> cols = withItem.getWithItemList();
+		WithColumnsParser withColumnParser = new WithColumnsParser();
+		withColumnParser.parseWithColumns(cols);
+
+		String tableName = withItem.getName();
+		ArrayList<CaseIgnoredString> columnNames = withColumnParser.getColumnNames();
+		SelectBody selectBody = withItem.getSelectBody();
+		SelectParser parser = new SelectParser(this._sqlParser, null, selectBody);
+		RelationalExprOperator operator = parser.parse();
+
+		addError(new UnsupportedOperationException("WITH is not implemented yet."));
+		// todo, create com.pplive.pike.metadata.Table according to tableName, columnNames, selectBody output schema
+	}
+
+/*	public void visit(Union union) {
 		@SuppressWarnings("unchecked") List<PlainSelect> plainSelects = union.getPlainSelects();
 		
 		@SuppressWarnings("unchecked") List<OrderByElement> orderByElements = union.getOrderByElements();
@@ -303,6 +326,6 @@ class SelectParser implements SelectVisitor {
 		
 		// TODO
 		// create UnionOperator(), parse plainSelects, create LimitOperator(), OrderByOperator()
-	}
+	}*/
 	
 }

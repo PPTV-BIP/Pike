@@ -1,7 +1,4 @@
 package com.pplive.pike.function.builtin;
-
-import org.apache.commons.lang3.math.NumberUtils;
-
 import com.pplive.pike.base.AbstractUDF;
 
 public class VersionCompare extends AbstractUDF {
@@ -24,8 +21,8 @@ public class VersionCompare extends AbstractUDF {
         String[] targetArr = targetVersion.split(delimiter);
         int length = versionArr.length < targetArr.length? versionArr.length : targetArr.length;
         for(int i = 0; i < length; i++) {
-            int v1 = NumberUtils.toInt(versionArr[i], 0),
-                v2 = NumberUtils.toInt(targetArr[i], 0);
+            int v1 = Integer.valueOf(versionArr[i]);
+            int v2 = Integer.valueOf(targetArr[i]);
             if(v1 > v2) {
                 return true;
             } else if(v1 < v2) {

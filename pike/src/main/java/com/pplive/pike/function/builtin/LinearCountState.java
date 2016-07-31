@@ -254,6 +254,16 @@ class LinearCounting implements ICardinality, Serializable
     }
 
     @Override
+    public boolean offerHashed(long l) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public boolean offerHashed(int i) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
     public int sizeof()
     {
         return _longByteArray != null ? _longByteArray.byteSize() : map.length;

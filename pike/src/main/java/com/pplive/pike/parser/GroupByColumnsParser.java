@@ -37,7 +37,7 @@ class GroupByColumnsParser {
 			CaseIgnoredString table;
 			if (column.getTable() != null && column.getTable().getName() != null){
 				if (column.getTable().getSchemaName() != null){
-					String msg = String.format("GROUP BY error: column %s with schema name is not supported", column.getWholeColumnName());
+					String msg = String.format("GROUP BY error: column %s with schema name is not supported", column.getFullyQualifiedName());
 					throw new UnsupportedOperationException(msg);
 				}
 				table = new CaseIgnoredString(column.getTable().getName());

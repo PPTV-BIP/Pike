@@ -378,6 +378,25 @@ class LogLog implements ICardinality, Serializable
         return modified;
     }
 
+    @Override
+    public boolean offerHashed(long hashedLong) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public boolean offerHashed(int hashedInt) {
+        boolean modified = false;
+        int j = hashedInt >>> (Integer.SIZE - k);
+        byte r = (byte) (Integer.numberOfLeadingZeros((hashedInt << k) | (1 << (k - 1))) + 1);
+        if (M[j] < r) {
+            Rsum += r - M[j];
+            M[j] = r;
+            modified = true;
+        }
+
+        return modified;
+    }
+
     /**
      * Computes the position of the first set bit of the last Integer.SIZE-k bits
      *
