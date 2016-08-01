@@ -4,60 +4,40 @@ import com.pplive.pike.Configuration;
 import com.pplive.pike.generator.ISpoutGenerator;
 import com.pplive.pike.generator.KafkaSpoutGenerator;
 import com.pplive.pike.generator.LocalTextFileSpoutGenerator;
-import com.pplive.pike.metadata.ITableInfoProvider;
-import com.pplive.pike.metadata.XmlMetaDataSource;
+import com.pplive.pike.metadata.MetaDataProvider;
+import org.apache.commons.lang.StringUtils;
 
 /**
  * Created by jiatingjin on 2016/7/28.
  */
 public class PikeContextBuilder {
+
     private Configuration conf;
 
 
-    private ITableInfoProvider metaDataSource;
+    private MetaDataProvider metaDataProvider;
+
+    private ISpoutGenerator spoutGenerator = null;
 
     private String sql;
 
     private String topologyName;
-
-    private SPOUT spout;
-
-    private String localTextFile;
-
-    private enum SPOUT {
-        KAFKA, LOCAL_TEXT_FILE
-    }
 
 
     public PikeContextBuilder(Configuration conf) {
         this.conf = conf;
     }
 
-    public PikeContextBuilder withMetaDataSource(ITableInfoProvider metaDataSource) {
-        this.metaDataSource = metaDataSource;
+    public PikeContextBuilder withMetaDataProvider(MetaDataProvider metaDataProvider) {
+        this.metaDataProvider = metaDataProvider;
         return  this;
     }
 
-    public PikeContextBuilder withXmlmetaDataSource(String metaFile) {
-        this.metaDataSource = new XmlMetaDataSource(metaFile);
+    public PikeContextBuilder withSpoutGenerator(ISpoutGenerator spoutGenerator) {
+        this.spoutGenerator = spoutGenerator;
         return  this;
     }
 
-    public PikeContextBuilder withXmlmetaDataSource() {
-        this.metaDataSource = new XmlMetaDataSource(conf);
-        return  this;
-    }
-
-    public PikeContextBuilder withKafaSpout() {
-        spout = SPOUT.KAFKA;
-        return this;
-    }
-
-    public PikeContextBuilder withLocalTextFileSpout(String textFile) {
-        spout = SPOUT.LOCAL_TEXT_FILE;
-        localTextFile = textFile;
-        return this;
-    }
 
     public PikeContextBuilder withSql(String sql) {
         this.sql = sql;
@@ -74,21 +54,38 @@ public class PikeContextBuilder {
     }
 
     public PikeContext build() {
-        return new PikeContext(conf, metaDataSource, sql, topologyName, createSpoutGenerator());
-    }
+        if (this.metaDataProvider == null) {
+            this.metaDataProvider = (MetaDataProvider)createInstance(Configuration.MetaDataProviderClass);
+        }
 
-    private ISpoutGenerator createSpoutGenerator() {
-        ISpoutGenerator spoutGenerator = null;
-        switch (spout) {
-            case KAFKA:
-                spoutGenerator = new KafkaSpoutGenerator(this.metaDataSource);
-                break;
-            case LOCAL_TEXT_FILE:
-                spoutGenerator = new LocalTextFileSpoutGenerator(this.metaDataSource, this.localTextFile);
-                break;
-            default:
+        metaDataProvider.init(conf);
+
+        if (this.spoutGenerator == null) {
+            this.spoutGenerator = (ISpoutGenerator)createInstance(Configuration.SpoutGeneratorClass);
 
         }
-        return spoutGenerator;
+
+        spoutGenerator.init(conf, metaDataProvider);
+
+        return new PikeContext(conf, metaDataProvider, sql, topologyName, spoutGenerator);
+    }
+
+
+    private Object createInstance(String fqcn) {
+        String clazz = (String)conf.get(fqcn);
+        if (StringUtils.isEmpty(clazz)) {
+            throw new RuntimeException(String.format("there is no metadata provider, set key %s in pike.yaml", fqcn));
+        }
+
+        try {
+            Class<?> metaClass=  Class.forName(clazz);
+            return  metaClass.newInstance();
+        } catch (ClassNotFoundException e) {
+            throw new RuntimeException("Class NotFound", e);
+        } catch (InstantiationException e) {
+            throw new RuntimeException("Instantiation Exception", e);
+        } catch (IllegalAccessException e) {
+            throw new RuntimeException("Illegal Access Exception", e);
+        }
     }
 }

@@ -1,32 +1,41 @@
 package com.pplive.pike.metadata;
 
 import com.pplive.pike.Configuration;
-import com.pplive.pike.util.MetaUtil;
 import com.pplive.pike.util.SerializeUtils;
+import com.pplive.pike.client.Table;
 
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import java.io.StringReader;
-import java.util.Set;
+
 
 /**
  * Created by jiatingjin on 2016/7/28.
  */
 
-public class XmlMetaDataSource implements ITableInfoProvider {
+public class XmlMetaDataProvider implements MetaDataProvider {
+
+    public static final String metafile = "meta.xml";
 
     private Table[] tables;
 
     @XmlRootElement(name="tables")
     private static class _Tables {
         @XmlElement(name = "table")
-        com.pplive.pike.client.Table[] tables;
+        Table[] _tables;
     }
 
-    public XmlMetaDataSource(String tableInfoFile) {
+    public XmlMetaDataProvider() {
+
+    }
+
+    @Override
+    public void init(Configuration conf) {
+        ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
+        String tableInfoFile = classLoader.getResource(metafile).getPath();
         try {
             _Tables _tables = SerializeUtils.xmlDeserialize(_Tables.class, tableInfoFile);
-            this.tables = convertTable(_tables);
+            this.tables = _tables._tables;
         }
         catch(RuntimeException e){
             System.err.println(String.format("read table info failed from file %s", tableInfoFile));
@@ -34,33 +43,18 @@ public class XmlMetaDataSource implements ITableInfoProvider {
         }
     }
 
-    public XmlMetaDataSource(Configuration conf) {
-        this(conf.getString(Configuration.XmlMetaDataSource));
-    }
 
-    private XmlMetaDataSource() {
-
-    }
-
-    public static XmlMetaDataSource createDirectly(String fileContentXml) {
+    public static XmlMetaDataProvider createDirectly(String fileContentXml) {
         try {
-            XmlMetaDataSource result = new XmlMetaDataSource();
+            XmlMetaDataProvider result = new XmlMetaDataProvider();
             _Tables _tables = SerializeUtils.xmlDeserialize(_Tables.class, new StringReader(fileContentXml));
-            result.tables = convertTable(_tables);
+            result.tables = _tables._tables;
             return result;
         } catch (RuntimeException e) {
             throw (e);
         }
     }
 
-    private static Table[] convertTable(_Tables _tables) {
-        int len = _tables.tables.length;
-        Table[] tables = new Table[len];
-        for (int i = 0; i < len; ++i) {
-            tables[i] = MetaUtil.convertTable(_tables.tables[i]);
-        }
-        return tables;
-    }
 
     @Override
     public Table getTable(String name) {
@@ -80,13 +74,4 @@ public class XmlMetaDataSource implements ITableInfoProvider {
         return names;
     }
 
-    @Override
-    public long getTableBytesByHour(String name) {
-        return 0;
-    }
-
-    @Override
-    public void registColumns(String id, String tableName, Set<String> columns) {
-
-    }
 }

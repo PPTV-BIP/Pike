@@ -4,16 +4,22 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Map;
 
+import com.pplive.pike.Configuration;
 import com.pplive.pike.base.Period;
 import com.pplive.pike.exec.spout.PikeBatchSpout;
 import com.pplive.pike.exec.spout.TextFileSpout;
 import com.pplive.pike.metadata.ITableInfoProvider;
+import com.pplive.pike.metadata.MetaDataAdapter;
+import com.pplive.pike.metadata.MetaDataProvider;
 
 public class LocalTextFileSpoutGenerator implements ISpoutGenerator {
 	
-	private final ITableInfoProvider _tableInfoProvider;
-	private final String _tableDataFile;
-	
+	private  ITableInfoProvider _tableInfoProvider;
+	private  String _tableDataFile;
+
+	public LocalTextFileSpoutGenerator() {
+
+	}
 	public LocalTextFileSpoutGenerator(ITableInfoProvider tableInfoProvider, String tableDataFile){
 		if (tableInfoProvider == null)
 			throw new IllegalArgumentException("tableInfoProvider cannot be null");
@@ -22,6 +28,12 @@ public class LocalTextFileSpoutGenerator implements ISpoutGenerator {
 		
 		this._tableInfoProvider = tableInfoProvider;
 		this._tableDataFile = tableDataFile;
+	}
+
+	@Override
+	public void init(Configuration conf, MetaDataProvider metaDataProvider) {
+		this._tableInfoProvider = new MetaDataAdapter(metaDataProvider);
+		this._tableDataFile = (String) conf.get(Configuration.SpoutLocalTextFile);
 	}
 
 	@Override

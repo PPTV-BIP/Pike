@@ -38,6 +38,6 @@ public class XmlMetaDataSourceTest {
 
     @Ignore
     public void test() {
-        XmlMetaDataSource dataSource = XmlMetaDataSource.createDirectly(xml);
+        XmlMetaDataProvider dataSource = XmlMetaDataProvider.createDirectly(xml);
     }
 }

@@ -12,6 +12,7 @@ import com.pplive.pike.expression.ExpressionRefColumnsGetter;
 import com.pplive.pike.expression.OutputExpression;
 import com.pplive.pike.metadata.Column;
 
+import net.sf.jsqlparser.expression.Alias;
 import net.sf.jsqlparser.expression.Expression;
 import net.sf.jsqlparser.schema.Table;
 import net.sf.jsqlparser.statement.select.AllColumns;
@@ -262,7 +263,7 @@ class SelectItemsParser implements SelectItemVisitor {
 	}
 	
 	public void visit(SelectExpressionItem selectExpressionItem) {
-		String alias = selectExpressionItem.getAlias().getName();
+		Alias alias = selectExpressionItem.getAlias();
 		Expression expr = selectExpressionItem.getExpression();
 		ExpressionParser parser = new ExpressionParser(this._sqlParser, this._schemaScope, expr);
 		AbstractExpression parsedExpr = null;
@@ -276,8 +277,8 @@ class SelectItemsParser implements SelectItemVisitor {
 		}
 		TransformField transformField;
 		if (alias != null) {
-			assert alias.isEmpty() == false;
-			transformField = new TransformField(parsedExpr, alias);
+			assert alias.getName().isEmpty() == false;
+			transformField = new TransformField(parsedExpr, alias.getName());
 		}
 		else {
 			transformField = new TransformField(parsedExpr);

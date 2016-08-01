@@ -8,7 +8,8 @@ import com.pplive.pike.TopologyConsoleDisplayer;
 
 import com.pplive.pike.generator.ISpoutGenerator;
 import com.pplive.pike.generator.trident.TridentTopologyGenerator;
-import com.pplive.pike.metadata.ITableInfoProvider;
+import com.pplive.pike.metadata.MetaDataAdapter;
+import com.pplive.pike.metadata.MetaDataProvider;
 import com.pplive.pike.metadata.TableManager;
 import com.pplive.pike.parser.LogicalQueryPlan;
 
@@ -23,7 +24,7 @@ public class PikeContext {
 
     private Configuration conf;
 
-    private ITableInfoProvider metaDataSource;
+    private MetaDataProvider metaDataProvider;
 
     private String sql;
 
@@ -31,9 +32,9 @@ public class PikeContext {
 
     private ISpoutGenerator spoutGenerator;
 
-    public PikeContext(Configuration conf, ITableInfoProvider metaDataSource, String sql, String topologyName, ISpoutGenerator spoutGenerator){
+    public PikeContext(Configuration conf, MetaDataProvider metaDataSource, String sql, String topologyName, ISpoutGenerator spoutGenerator){
         this.conf = conf;
-        this.metaDataSource = metaDataSource;
+        this.metaDataProvider = metaDataSource;
         this.sql = sql;
         this.topologyName = topologyName;
         this.spoutGenerator = spoutGenerator;
@@ -62,7 +63,7 @@ public class PikeContext {
     public void explain() {
         boolean optimize = conf.isOptimizeQL();
         LogicalQueryPlan queryPlan = PikeSqlCompiler.parseSQL(sql,
-                new TableManager(metaDataSource), optimize);
+                new TableManager(new MetaDataAdapter(metaDataProvider)), optimize);
         if (queryPlan != null) {
             System.out.println(queryPlan.toExplainString());
         }
@@ -76,7 +77,7 @@ public class PikeContext {
     private PikeTopology compile(){
         Map<String, Object> options = PikeSqlCompiler.parseSQLOptions(sql);
         conf.putAll(options);
-        LogicalQueryPlan queryPlan = PikeSqlCompiler.parseSQL(sql, new TableManager(metaDataSource), conf.isOptimizeQL());
+        LogicalQueryPlan queryPlan = PikeSqlCompiler.parseSQL(sql, new TableManager(new MetaDataAdapter(metaDataProvider)), conf.isOptimizeQL());
         boolean debug = conf.isDebugTopology();
         boolean localMode = conf.isLocalMode();
         if (conf.isDisplayTridentGraph()) {

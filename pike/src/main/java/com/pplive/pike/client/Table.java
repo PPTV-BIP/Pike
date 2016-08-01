@@ -21,4 +21,8 @@ public class Table {
         this.name = name;
         this.columns = columns;
     }
+
+    public String getName() {
+        return name;
+    }
 }

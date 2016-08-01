@@ -40,7 +40,4 @@ public class TableManager {
 		return this.getProvider().getTableBytesByHour(name);
 	}
 
-	public TableManager(RawMetaDataSource dataSource) {
-		this.provider = dataSource;
-	}
 }

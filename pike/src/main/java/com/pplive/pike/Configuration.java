@@ -335,5 +335,9 @@ public class Configuration extends Config {
     // Kafka broker host
     public final static String KafkaBrokerList = "kafka.metadata.broker.list";
 
-	public final static String XmlMetaDataSource = "pike.metadata.xml.path";
+	//public final static String XmlMetaDataFile = "pike.metadata.xmlfile";
+	public final static String MetaDataProviderClass = "pike.metadata.provider.class";
+	public final static String SpoutGeneratorClass = "pike.spout.generator.class";
+
+	public final static String SpoutLocalTextFile = "pike.spout.local.textfile";
 }

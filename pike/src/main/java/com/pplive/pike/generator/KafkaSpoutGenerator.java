@@ -5,6 +5,8 @@ import java.util.Date;
 import java.util.Map;
 
 import com.pplive.pike.metadata.ITableInfoProvider;
+import com.pplive.pike.metadata.MetaDataAdapter;
+import com.pplive.pike.metadata.MetaDataProvider;
 import org.apache.commons.lang.StringUtils;
 
 import com.pplive.pike.Configuration;
@@ -18,6 +20,11 @@ public class KafkaSpoutGenerator implements ISpoutGenerator {
 
     public KafkaSpoutGenerator(ITableInfoProvider tableInfoProvider) {
         this.tableInfoProvider = tableInfoProvider;
+    }
+
+    @Override
+    public void init(Configuration conf, MetaDataProvider metaDataProvider) {
+        this.tableInfoProvider = new MetaDataAdapter(metaDataProvider);
     }
 
     @Override

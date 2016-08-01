@@ -8,8 +8,14 @@ import com.pplive.pike.Configuration;
 import com.pplive.pike.base.Period;
 import com.pplive.pike.exec.spout.PikeBatchSpout;
 import com.pplive.pike.exec.spout.rabbitmq.RabbitMQSpout;
+import com.pplive.pike.metadata.MetaDataProvider;
 
 public class RabbitMQSpoutGenerator implements ISpoutGenerator {
+
+	@Override
+	public void init(Configuration conf, MetaDataProvider metaDataProvider) {
+
+	}
 
 	@Override
 	public PikeBatchSpout create(String topologyName, String tableName, String[] requiredColumns, Period period, Map<String, Object> conf){
