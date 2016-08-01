@@ -18,7 +18,7 @@ public class XmlMeta {
 
         config.put(Configuration.SpoutLocalTextFile, classLoader.getResource("dol_smart").getPath());
         config.put(Configuration.SpoutGeneratorClass, "com.pplive.pike.generator.LocalTextFileSpoutGenerator");
-        config.put(Configuration.MetaDataProviderClass, "com.pplive.pike.metadata.XmlMetaDataProvider");
+        config.put(Configuration.MetaDataProviderClass, "com.pplive.pike.metadata.JsonMetaDataProvider");
         contextBuilder = new PikeContextBuilder(config);
 
         String topologyName = "sm_live_vv_5s";
