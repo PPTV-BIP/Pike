@@ -11,8 +11,10 @@ To help pike development you are encouraged to provide:
 - pull requests for new features
 
 #Building from source
-As the project is a Maven project, building is rather simple under root pom directory by running:
+Pike sql parser is based on [pike-jsqlparser](https://github.com/PPTV-BIP/Pike-JSqlParser/wiki), build pike-jsqlparser first.
 
-    mvn clean package
+Building pike is rather simple under root directory by running:
+
+    mvn clean package -DskipTests
   
 This will produce the pike-VERSION-install.tar.gz file.
